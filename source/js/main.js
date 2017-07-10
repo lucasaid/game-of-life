@@ -2,12 +2,13 @@ const repeat = (fn, n) => Array(n).fill(0).map(fn);
 const rand = () => Math.random() < 0.75 ? 0 : 1; 
 const createGrid = n => repeat(() => repeat(rand, n), n);
 
-const gridSize = 10;
+const gridSize = 20;
 
 let grid = createGrid(gridSize);
-
-const cellWidth = 40;
-const cellHeight = 40;
+// grid = [[0,0,0,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,0,0,0]]
+let tempGrid = grid.slice();
+const cellWidth = 5;
+const cellHeight = 5;
 
 const width = cellWidth*gridSize;
 const height = cellHeight*gridSize;
@@ -39,6 +40,7 @@ function checkCells(){
         checkNeighbours(x, y)
       });
     });
+    grid = tempGrid.slice();
 }
 
 function checkNeighbours(x, y) {
@@ -52,13 +54,13 @@ function checkNeighbours(x, y) {
   let downright = (y < grid.length-1 && x < grid[y].length-1) ? grid[y+1][x+1] : 0;
   let sum = left+up+down+right+upleft+upright+downleft+downright; 
   if(sum < 2 && grid[y][x]){
-    grid[y][x] = 0;
+    tempGrid[y][x] = 0;
   } else if(sum >= 2 && sum <= 3 && grid[y][x]){
-    grid[y][x] = 1; 
+    tempGrid[y][x] = 1; 
   } else if(sum > 3 && grid[y][x]) {
-    grid[y][x] = 0; 
+    tempGrid[y][x] = 0; 
   } else if(!grid[y][x] && sum == 3) {
-    grid[y][x] = 1;
+    tempGrid[y][x] = 1;
   }
 }
 function updateGrid() {
@@ -99,16 +101,13 @@ function drawBoard(){
 
 function loop () {
   loops++;
-  console.log(loops);
-  if(loops < 30){
-    setTimeout(function(){
-      window.requestAnimationFrame(loop);
-    }, 500);
-  }
+  setTimeout(function(){
+    window.requestAnimationFrame(loop);
+  }, 50);
   
-  updateGrid();
   drawBoard();
-  //addRandom();
+  updateGrid();
+  addRandom();
 }
 
 window.addEventListener("load", loop);
