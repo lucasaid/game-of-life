@@ -70,7 +70,64 @@
 "use strict";
 
 
-console.log("Balls");
+var repeat = function repeat(fn, n) {
+  return Array(n).fill(0).map(fn);
+};
+var rand = function rand() {
+  return Math.floor(Math.random() * 2);
+};
+var createGrid = function createGrid(n) {
+  return repeat(function () {
+    return repeat(rand, n);
+  }, n);
+};
+
+var gridSize = 10;
+
+var grid = createGrid(gridSize);
+
+var cellWidth = 40;
+var cellHeight = 40;
+
+var width = cellWidth * gridSize;
+var height = cellHeight * gridSize;
+
+var canvas = document.getElementById('canvas');
+canvas.width = width;
+canvas.height = height;
+
+var context = canvas.getContext("2d");
+
+function drawBoard() {
+  context.strokeStyle = "black";
+  context.fillStyle = "black";
+
+  // Loop Through Grid
+  grid.forEach(function (yCell, y) {
+    context.moveTo(0, y * cellHeight);
+    context.lineTo(width, y * cellHeight);
+    yCell.forEach(function (xCell, x) {
+      context.moveTo(x * cellWidth, 0);
+      context.lineTo(x * cellWidth, height);
+      if (xCell) {
+        context.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+      }
+    });
+  });
+
+  // Draw Bottom Line
+  context.moveTo(0, height);
+  context.lineTo(width, height);
+
+  // Draw Right Line
+  context.moveTo(width, 0);
+  context.lineTo(width, height);
+
+  // Draw all the lines
+  context.stroke();
+}
+
+drawBoard();
 
 /***/ })
 /******/ ]);
