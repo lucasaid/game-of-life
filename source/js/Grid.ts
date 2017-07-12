@@ -110,9 +110,11 @@ export default class Grid {
     }
   }
   private addRandom = () => {
-    let x = Math.floor((Math.random() * this.gridSize) + 1);
-    let y = Math.floor((Math.random() * this.gridSize) + 1);
-    this.grid[y][x] = 1;
+    let x = Math.floor((Math.random() * this.gridSize));
+    let y = Math.floor((Math.random() * this.gridSize));
+
+    if(this.grid[y][x])
+      this.grid[y][x] = 1;
   }
   private requestFrame = () => {
     window.requestAnimationFrame(this.loop);

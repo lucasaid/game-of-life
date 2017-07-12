@@ -71,7 +71,7 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Grid_1 = __webpack_require__(1);
-let GameOfLifeGrid = new Grid_1.default("canvas", 10, 20, 20);
+let GameOfLifeGrid = new Grid_1.default("canvas", 30, 5, 5);
 GameOfLifeGrid.drawBoard();
 GameOfLifeGrid.run(true);
 
@@ -153,9 +153,10 @@ class Grid {
             }
         };
         this.addRandom = () => {
-            let x = Math.floor((Math.random() * this.gridSize) + 1);
-            let y = Math.floor((Math.random() * this.gridSize) + 1);
-            this.grid[y][x] = 1;
+            let x = Math.floor((Math.random() * this.gridSize));
+            let y = Math.floor((Math.random() * this.gridSize));
+            if (this.grid[y][x])
+                this.grid[y][x] = 1;
         };
         this.requestFrame = () => {
             window.requestAnimationFrame(this.loop);
