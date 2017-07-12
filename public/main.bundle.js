@@ -71,7 +71,7 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Grid_1 = __webpack_require__(1);
-let GameOfLifeGrid = new Grid_1.default("canvas", 30, 5, 5);
+let GameOfLifeGrid = new Grid_1.default("canvas", 15, 10, 10);
 GameOfLifeGrid.drawBoard();
 GameOfLifeGrid.run(true);
 
