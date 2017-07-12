@@ -88,25 +88,46 @@ export default class Grid {
   }
 
   private checkNeighbours = (x: number, y: number) => {
-    let left: number = (y > 0) ? this.grid[y-1][x] : 0;
-    let up: number = (x > 0) ? this.grid[y][x-1] : 0;
-    let down: number = (x < this.grid[y].length-1) ? this.grid[y][x+1] : 0;
-    let right: number = (y < this.grid.length-1) ? this.grid[y+1][x] : 0;
-    let upleft: number = (y > 0 && x > 0) ? this.grid[y-1][x-1] : 0;
-    let upright: number = (y > 0 && x < this.grid[y].length-1) ? this.grid[y-1][x+1] : 0;
-    let downleft: number = (y < this.grid.length-1 && x > 0) ? this.grid[y+1][x-1] : 0;
-    let downright: number = (y < this.grid.length-1 && x < this.grid[y].length-1) ? this.grid[y+1][x+1] : 0;
+    let sum: number = 0;
+    sum += (y > 0) ? this.grid[y-1][x] : 0;
+    sum += (x > 0) ? this.grid[y][x-1] : 0;
+    sum += (x < this.grid[y].length-1) ? this.grid[y][x+1] : 0;
+    sum += (y < this.grid.length-1) ? this.grid[y+1][x] : 0;
+    sum += (y > 0 && x > 0) ? this.grid[y-1][x-1] : 0;
+    sum += (y > 0 && x < this.grid[y].length-1) ? this.grid[y-1][x+1] : 0;
+    sum += (y < this.grid.length-1 && x > 0) ? this.grid[y+1][x-1] : 0;
+    sum += (y < this.grid.length-1 && x < this.grid[y].length-1) ? this.grid[y+1][x+1] : 0;
 
-    let sum: number = left+up+down+right+upleft+upright+downleft+downright; 
+    if (this.grid[y][x] === 0) {
+      switch (sum) {
+        case 3:
+          this.tempGrid[y][x] = 1; //if cell is dead and has 3 neighbours, switch it on
+          break;
+        default:
+          this.tempGrid[y][x] = 0; //otherwise leave it dead
+      }
+    } else if (this.tempGrid[y][x] === 1) { //apply rules to living cell
+      switch (sum) {
+        case 0:
+        case 1:
+          this.tempGrid[y][x] = 0; //die of lonelines
+          break;
+        case 2:
+        case 3:
+          this.tempGrid[y][x] = 1; //carry on living
+          break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+          this.tempGrid[y][x] = 0; //die of overcrowding
+          break;
+        default:
+          this.tempGrid[y][x] = 0; //
 
-    if(sum < 2 && this.grid[y][x]){
-      this.tempGrid[y][x] = 0;
-    } else if(sum >= 2 && sum <= 3 && this.grid[y][x]){
-      this.tempGrid[y][x] = 1; 
-    } else if(sum > 3 && this.grid[y][x]) {
-      this.tempGrid[y][x] = 0; 
-    } else if(!this.grid[y][x] && sum == 3) {
-      this.tempGrid[y][x] = 1;
+      }
+
     }
   }
   private addRandom = () => {
@@ -120,12 +141,13 @@ export default class Grid {
     window.requestAnimationFrame(this.loop);
   }
   private loop = () => {
-    setTimeout(this.requestFrame,50);
     
     this.drawBoard();
     this.checkCells();
     if(this.random)
       this.addRandom();
+
+    setTimeout(this.requestFrame,50);
   }
   public run = (random?: boolean) => {
     this.random = random || this.random
