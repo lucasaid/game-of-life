@@ -69,129 +69,124 @@
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+const Grid_1 = __webpack_require__(1);
+let GameOfLifeGrid = new Grid_1.default("canvas", 10, 20, 20);
+GameOfLifeGrid.drawBoard();
+GameOfLifeGrid.run(true);
 
-var repeat = function repeat(fn, n) {
-  return Array(n).fill(0).map(fn);
-};
-var rand = function rand() {
-  return Math.random() < 0.75 ? 0 : 1;
-};
-var createGrid = function createGrid(n) {
-  return repeat(function () {
-    return repeat(rand, n);
-  }, n);
-};
 
-var gridSize = 10;
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
 
-var grid = createGrid(gridSize);
+"use strict";
 
-var cellWidth = 40;
-var cellHeight = 40;
-
-var width = cellWidth * gridSize;
-var height = cellHeight * gridSize;
-
-var loops = 0;
-
-var canvas = document.getElementById('canvas');
-canvas.width = width;
-canvas.height = height;
-
-var context = canvas.getContext("2d");
-
-function drawRect() {
-  grid.forEach(function (yCell, y) {
-    context.moveTo(0, y * cellHeight);
-    context.lineTo(width, y * cellHeight);
-    yCell.forEach(function (xCell, x) {
-      context.moveTo(x * cellWidth, 0);
-      context.lineTo(x * cellWidth, height);
-      if (xCell) {
-        context.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
-      }
-    });
-  });
-}
-function checkCells() {
-  grid.forEach(function (yCell, y) {
-    yCell.forEach(function (xCell, x) {
-      checkNeighbours(x, y);
-    });
-  });
-}
-
-function checkNeighbours(x, y) {
-  var left = y > 0 ? grid[y - 1][x] : 0;
-  var up = x > 0 ? grid[y][x - 1] : 0;
-  var down = x < grid[y].length - 1 ? grid[y][x + 1] : 0;
-  var right = y < grid.length - 1 ? grid[y + 1][x] : 0;
-  var upleft = y > 0 && x > 0 ? grid[y - 1][x - 1] : 0;
-  var upright = y > 0 && x < grid[y].length - 1 ? grid[y - 1][x + 1] : 0;
-  var downleft = y < grid.length - 1 && x > 0 ? grid[y + 1][x - 1] : 0;
-  var downright = y < grid.length - 1 && x < grid[y].length - 1 ? grid[y + 1][x + 1] : 0;
-  var sum = left + up + down + right + upleft + upright + downleft + downright;
-  if (sum < 2 && grid[y][x]) {
-    grid[y][x] = 0;
-  } else if (sum >= 2 && sum <= 3 && grid[y][x]) {
-    grid[y][x] = 1;
-  } else if (sum > 3 && grid[y][x]) {
-    grid[y][x] = 0;
-  } else if (!grid[y][x] && sum == 3) {
-    grid[y][x] = 1;
-  }
-}
-function updateGrid() {
-  checkCells();
-}
-function addRandom() {
-  var x = Math.floor(Math.random() * gridSize + 1);
-  var y = Math.floor(Math.random() * gridSize + 1);
-  console.log(x, y);
-  grid[y][x] = 1;
-}
-
+Object.defineProperty(exports, "__esModule", { value: true });
+// RULES
 // Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
 // Any live cell with two or three live neighbours lives on to the next generation.
 // Any live cell with more than three live neighbours dies, as if by overpopulation.
 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-
-function drawBoard() {
-
-  context.clearRect(0, 0, width, height);
-  context.strokeStyle = "black";
-  context.fillStyle = "black";
-
-  // Loop Through Grid
-  drawRect();
-
-  // Draw Bottom Line
-  context.moveTo(0, height);
-  context.lineTo(width, height);
-
-  // Draw Right Line
-  context.moveTo(width, 0);
-  context.lineTo(width, height);
-
-  // Draw all the lines
-  context.stroke();
+class Grid {
+    constructor(id, gridSize, cellWidth, cellHeight) {
+        this.repeat = (fn) => Array(this.gridSize).fill(0).map(fn);
+        this.rand = () => Math.random() < 0.75 ? 0 : 1;
+        this.createGrid = () => this.grid = this.repeat(() => this.repeat(this.rand));
+        this.drawRect = () => {
+            this.grid.forEach((yCell, y) => {
+                this.context.moveTo(0, y * this.cellHeight);
+                this.context.lineTo(this.width, y * this.cellHeight);
+                yCell.forEach((xCell, x) => {
+                    this.context.moveTo(x * this.cellWidth, 0);
+                    this.context.lineTo(x * this.cellWidth, this.height);
+                    if (xCell) {
+                        this.context.fillRect((x * this.cellWidth), (y * this.cellHeight), this.cellWidth, this.cellHeight);
+                    }
+                });
+            });
+        };
+        this.drawBoard = () => {
+            this.context.clearRect(0, 0, this.width, this.height);
+            this.context.strokeStyle = "black";
+            this.context.fillStyle = "black";
+            // Loop Through Grid
+            this.drawRect();
+            // Draw Bottom Line
+            this.context.moveTo(0, this.height);
+            this.context.lineTo(this.width, this.height);
+            // Draw Right Line
+            this.context.moveTo(this.width, 0);
+            this.context.lineTo(this.width, this.height);
+            // Draw all the lines
+            this.context.stroke();
+        };
+        this.checkCells = () => {
+            this.grid.forEach((yCell, y) => {
+                yCell.forEach((xCell, x) => {
+                    this.checkNeighbours(x, y);
+                });
+            });
+            this.grid = this.tempGrid.slice();
+        };
+        this.checkNeighbours = (x, y) => {
+            let left = (y > 0) ? this.grid[y - 1][x] : 0;
+            let up = (x > 0) ? this.grid[y][x - 1] : 0;
+            let down = (x < this.grid[y].length - 1) ? this.grid[y][x + 1] : 0;
+            let right = (y < this.grid.length - 1) ? this.grid[y + 1][x] : 0;
+            let upleft = (y > 0 && x > 0) ? this.grid[y - 1][x - 1] : 0;
+            let upright = (y > 0 && x < this.grid[y].length - 1) ? this.grid[y - 1][x + 1] : 0;
+            let downleft = (y < this.grid.length - 1 && x > 0) ? this.grid[y + 1][x - 1] : 0;
+            let downright = (y < this.grid.length - 1 && x < this.grid[y].length - 1) ? this.grid[y + 1][x + 1] : 0;
+            let sum = left + up + down + right + upleft + upright + downleft + downright;
+            if (sum < 2 && this.grid[y][x]) {
+                this.tempGrid[y][x] = 0;
+            }
+            else if (sum >= 2 && sum <= 3 && this.grid[y][x]) {
+                this.tempGrid[y][x] = 1;
+            }
+            else if (sum > 3 && this.grid[y][x]) {
+                this.tempGrid[y][x] = 0;
+            }
+            else if (!this.grid[y][x] && sum == 3) {
+                this.tempGrid[y][x] = 1;
+            }
+        };
+        this.addRandom = () => {
+            let x = Math.floor((Math.random() * this.gridSize) + 1);
+            let y = Math.floor((Math.random() * this.gridSize) + 1);
+            this.grid[y][x] = 1;
+        };
+        this.requestFrame = () => {
+            window.requestAnimationFrame(this.loop);
+        };
+        this.loop = () => {
+            setTimeout(this.requestFrame, 50);
+            this.drawBoard();
+            this.checkCells();
+            if (this.random)
+                this.addRandom();
+        };
+        this.run = (random) => {
+            this.random = random || this.random;
+            window.addEventListener("load", this.loop);
+        };
+        this.gridSize = gridSize;
+        this.cellWidth = cellWidth;
+        this.cellHeight = cellHeight;
+        this.width = this.cellWidth * this.gridSize;
+        this.height = this.cellHeight * this.gridSize;
+        this.createGrid();
+        this.tempGrid = this.grid.slice();
+        this.canvas = document.getElementById(id);
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.context = this.canvas.getContext("2d");
+        this.random = false;
+    }
 }
+exports.default = Grid;
 
-function loop() {
-  loops++;
-  console.log(loops);
-  if (loops < 30) {
-    setTimeout(function () {
-      window.requestAnimationFrame(loop);
-    }, 500);
-  }
-
-  updateGrid();
-  drawBoard();
-  //addRandom();
-}
-
-window.addEventListener("load", loop);
 
 /***/ })
 /******/ ]);

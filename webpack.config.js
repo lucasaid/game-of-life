@@ -3,10 +3,13 @@ var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
  module.exports = {
-     entry: './source/js/main.js',
+     entry: './source/js/main.ts',
      output: {
          path: path.resolve(__dirname, 'public'),
          filename: 'main.bundle.js'
+     },
+     resolve: {
+       extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
      },
      module: {
          loaders: [
@@ -20,7 +23,8 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
              {
                  test: /\.scss$/,
                  loader: ExtractTextPlugin.extract(['css','sass','style'])
-             }
+             },
+             { test: /\.tsx?$/, loader: "ts-loader" }
          ]
      },
      plugins: [
