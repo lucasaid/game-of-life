@@ -73,11 +73,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Grid_1 = __webpack_require__(1);
 let GameOfLifeGrid = new Grid_1.default({
     id: "canvas",
-    gridSize: 140,
-    cellWidth: 10,
-    cellHeight: 10,
+    gridSize: 40,
+    cellWidth: 50,
+    cellHeight: 50,
     lightness: 50,
-    randomness: 70
+    randomness: 70,
+    emoji: true
 });
 GameOfLifeGrid.run(true);
 let stopButton = document.querySelector('.stopBtn');
@@ -121,8 +122,13 @@ class Grid {
                     let check = this.grid[y][x];
                     if (xCell != check) {
                         if (xCell) {
-                            this.context.fillStyle = this.randHsl();
-                            this.context.fillRect((x * this.cellWidth), (y * this.cellHeight), this.cellWidth, this.cellHeight);
+                            if (!this.emoji) {
+                                this.context.fillStyle = this.randHsl();
+                                this.context.fillRect((x * this.cellWidth), (y * this.cellHeight), this.cellWidth, this.cellHeight);
+                            }
+                            else {
+                                this.context.drawImage(this.img, (x * this.cellWidth), (y * this.cellHeight), this.cellWidth, this.cellHeight);
+                            }
                         }
                         else {
                             this.context.clearRect((x * this.cellWidth), (y * this.cellHeight), this.cellWidth, this.cellHeight);
@@ -134,6 +140,8 @@ class Grid {
         };
         this.drawBoard = () => {
             this.context.strokeStyle = "black";
+            this.img = document.getElementById("emoji");
+            this.context.font = this.cellWidth + "px";
             // Loop Through Grid
             this.drawRect();
             this.context.stroke();
@@ -229,6 +237,7 @@ class Grid {
         this.hue = config.hue || null;
         this.saturation = config.saturation || null;
         this.lightness = config.lightness || null;
+        this.emoji = config.emoji || false;
     }
 }
 exports.default = Grid;

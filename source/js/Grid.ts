@@ -15,6 +15,7 @@ interface Config {
   saturation?: number;
   lightness?: number;
   randomness?: number;
+  emoji: boolean;
 }
 
 export default class Grid {
