@@ -71,9 +71,23 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Grid_1 = __webpack_require__(1);
-let GameOfLifeGrid = new Grid_1.default("canvas", 100, 10, 10);
-GameOfLifeGrid.drawBoard();
+let GameOfLifeGrid = new Grid_1.default({
+    id: "canvas",
+    gridSize: 140,
+    cellWidth: 10,
+    cellHeight: 10,
+    lightness: 50
+});
 GameOfLifeGrid.run(true);
+let stopButton = document.querySelector('.stopBtn');
+let on = true;
+stopButton.addEventListener("click", function () {
+    if (on)
+        GameOfLifeGrid.stop();
+    else
+        GameOfLifeGrid.run(true);
+    on = !on;
+});
 
 
 /***/ }),
@@ -83,18 +97,22 @@ GameOfLifeGrid.run(true);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-// RULES
-// Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
-// Any live cell with two or three live neighbours lives on to the next generation.
-// Any live cell with more than three live neighbours dies, as if by overpopulation.
-// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 class Grid {
-    constructor(id, gridSize, cellWidth, cellHeight) {
+    constructor(config) {
         this.repeat = (fn) => Array(this.gridSize).fill(0).map(fn);
         this.rand = () => Math.random() < 0.75 ? 0 : 1;
         this.createGrid = () => {
             this.grid = this.repeat(() => this.repeat(this.rand));
             this.tempGrid = JSON.parse(JSON.stringify(this.grid));
+        };
+        this.randColour = () => {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16);
+        };
+        this.randHsl = () => {
+            let hue = this.hue || this.randHue;
+            let saturation = this.saturation || Math.floor(Math.random() * 100);
+            let lightness = this.lightness || Math.floor(Math.random() * 100);
+            return "hsl(" + hue + ", " + saturation + "%, " + lightness + "%)";
         };
         this.drawRect = () => {
             this.tempGrid.forEach((yCell, y) => {
@@ -102,6 +120,7 @@ class Grid {
                     let check = this.grid[y][x];
                     if (xCell != check) {
                         if (xCell) {
+                            this.context.fillStyle = this.randHsl();
                             this.context.fillRect((x * this.cellWidth), (y * this.cellHeight), this.cellWidth, this.cellHeight);
                         }
                         else {
@@ -114,7 +133,6 @@ class Grid {
         };
         this.drawBoard = () => {
             this.context.strokeStyle = "black";
-            this.context.fillStyle = "black";
             // Loop Through Grid
             this.drawRect();
             this.context.stroke();
@@ -165,24 +183,50 @@ class Grid {
                 this.addRandom();
             this.checkCells();
             this.drawBoard();
-            setTimeout(this.requestFrame, 50);
+            this.ticker = setTimeout(this.requestFrame, 50);
         };
         this.run = (random) => {
             this.random = random || this.random;
-            window.addEventListener("load", this.loop);
+            this.loop();
+            this.canvas.addEventListener("click", this.addCell);
         };
-        this.gridSize = gridSize;
-        this.cellWidth = cellWidth;
-        this.cellHeight = cellHeight;
+        this.addCell = (evt) => {
+            let coords = this.getMousePos(evt);
+            let x = Math.ceil(coords.x / this.cellWidth) - 1;
+            let y = Math.ceil(coords.y / this.cellHeight) - 1;
+            console.log(x, y);
+            if (this.grid[y][x])
+                this.grid[y][x] = 1;
+            this.checkCells();
+            this.drawBoard();
+        };
+        this.getMousePos = (evt) => {
+            let rect = this.canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        };
+        this.stop = () => {
+            clearTimeout(this.ticker);
+            return true;
+        };
+        this.gridSize = config.gridSize;
+        this.cellWidth = config.cellWidth;
+        this.cellHeight = config.cellHeight;
         this.width = this.cellWidth * this.gridSize;
         this.height = this.cellHeight * this.gridSize;
         this.createGrid();
-        this.canvas = document.getElementById(id);
+        this.canvas = document.getElementById(config.id);
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.context = this.canvas.getContext("2d");
         this.random = false;
         this.loopRun = 0;
+        this.randHue = Math.floor(Math.random() * 360);
+        this.hue = config.hue || null;
+        this.saturation = config.saturation || null;
+        this.lightness = config.lightness || null;
     }
 }
 exports.default = Grid;
