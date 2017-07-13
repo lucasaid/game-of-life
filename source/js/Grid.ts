@@ -6,6 +6,17 @@
 // Any live cell with more than three live neighbours dies, as if by overpopulation.
 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
+interface Config {
+  gridSize: number;
+  cellWidth: number;
+  cellHeight: number;
+  id: string;
+  hue?: number;
+  saturation?: number;
+  lightness?: number;
+  randomness?: number;
+}
+
 export default class Grid {
   // Declare types
   grid: any; 
@@ -17,38 +28,61 @@ export default class Grid {
   tempGrid: Array<Array<number>>;
   random: boolean;
   loopRun: number;
+  randHue: number;
+  ticker: number;
+
+  hue?: number;
+  saturation?: number;
+  lightness?: number;
+  randomness?: number;
 
   canvas: any;
   context: any;
 
-  constructor(id: string, gridSize: number, cellWidth: number, cellHeight: number) {
-    this.gridSize = gridSize;
-    this.cellWidth = cellWidth;
-    this.cellHeight = cellHeight;
+
+  constructor(config: Config) {
+    this.gridSize = config.gridSize;
+    this.cellWidth = config.cellWidth;
+    this.cellHeight = config.cellHeight;
 
     this.width = this.cellWidth*this.gridSize;
     this.height = this.cellHeight*this.gridSize;
 
+    this.randomness = (config.randomness/100) || 0.75;
+
     this.createGrid();
 
 
-    this.canvas = document.getElementById(id);
+    this.canvas = document.getElementById(config.id);
     this.canvas.width = this.width;
     this.canvas.height = this.height;
 
     this.context = this.canvas.getContext("2d");
     this.random = false;
     this.loopRun = 0;
+    this.randHue = Math.floor(Math.random()*360);
+
+    this.hue = config.hue || null;
+    this.saturation = config.saturation || null;
+    this.lightness = config.lightness || null;
   }
   private repeat = (fn: any) => Array(this.gridSize).fill(0).map(fn);
 
-  private rand = () => Math.random() < 0.75 ? 0 : 1;
+  private rand = () => Math.random() < this.randomness ? 0 : 1;
 
   public createGrid = () => {
     this.grid = this.repeat(() => this.repeat(this.rand));
     this.tempGrid = JSON.parse(JSON.stringify(this.grid));
   }
-
+  private randColour = () => { 
+    return '#'+Math.floor(Math.random()*16777215).toString(16);  
+  }
+  private randHsl = () => {
+    let hue = this.hue || this.randHue;
+    let saturation = this.saturation || Math.floor(Math.random()*100);
+    let lightness = this.lightness || Math.floor(Math.random()*100); 
+    return "hsl("+hue+", "+saturation+"%, "+lightness+"%)";
+  }
   private drawRect = () => {
     this.tempGrid.forEach((yCell: any, y: number) => {
 
@@ -57,6 +91,7 @@ export default class Grid {
           let check = this.grid[y][x];
           if(xCell != check){ 
             if(xCell){
+              this.context.fillStyle = this.randHsl();
               this.context.fillRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
              
             } else {
@@ -71,7 +106,6 @@ export default class Grid {
   public drawBoard = () => {
 
     this.context.strokeStyle = "black";
-    this.context.fillStyle = "black";
 
 
 //    this.img=document.getElementById("emoji");
@@ -135,10 +169,33 @@ export default class Grid {
     this.checkCells();
     this.drawBoard();
 
-    setTimeout(this.requestFrame,50);
+    this.ticker = setTimeout(this.requestFrame,50);
   }
   public run = (random?: boolean) => {
     this.random = random || this.random
-    window.addEventListener("load", this.loop);
+    this.loop();
+    this.canvas.addEventListener("click", this.addCell);
+  }
+  private addCell = (evt) => {
+    let coords = this.getMousePos(evt);
+    let x = Math.ceil(coords.x/this.cellWidth)-1;
+    let y = Math.ceil(coords.y/this.cellHeight)-1;
+    console.log(x, y);
+    if(this.grid[y][x])
+      this.grid[y][x] = 1;
+
+    this.checkCells();
+    this.drawBoard();
+  }
+  private getMousePos = (evt) => {
+    let rect = this.canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+  public stop= () => {
+    clearTimeout(this.ticker);
+    return true;
   }
 }
