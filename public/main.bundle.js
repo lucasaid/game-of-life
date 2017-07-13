@@ -76,7 +76,8 @@ let GameOfLifeGrid = new Grid_1.default({
     gridSize: 140,
     cellWidth: 10,
     cellHeight: 10,
-    lightness: 50
+    lightness: 50,
+    randomness: 70
 });
 GameOfLifeGrid.run(true);
 let stopButton = document.querySelector('.stopBtn');
@@ -100,7 +101,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class Grid {
     constructor(config) {
         this.repeat = (fn) => Array(this.gridSize).fill(0).map(fn);
-        this.rand = () => Math.random() < 0.75 ? 0 : 1;
+        this.rand = () => Math.random() < this.randomness ? 0 : 1;
         this.createGrid = () => {
             this.grid = this.repeat(() => this.repeat(this.rand));
             this.tempGrid = JSON.parse(JSON.stringify(this.grid));
@@ -216,6 +217,7 @@ class Grid {
         this.cellHeight = config.cellHeight;
         this.width = this.cellWidth * this.gridSize;
         this.height = this.cellHeight * this.gridSize;
+        this.randomness = (config.randomness / 100) || 0.75;
         this.createGrid();
         this.canvas = document.getElementById(config.id);
         this.canvas.width = this.width;

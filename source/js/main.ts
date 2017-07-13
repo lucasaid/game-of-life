@@ -5,7 +5,8 @@ let GameOfLifeGrid = new Grid({
   gridSize: 140,
   cellWidth: 10,
   cellHeight: 10,
-  lightness: 50
+  lightness: 50,
+  randomness: 70 
 });
 GameOfLifeGrid.run(true);
 let stopButton = document.querySelector('.stopBtn');

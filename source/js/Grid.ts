@@ -14,6 +14,7 @@ interface Config {
   hue?: number;
   saturation?: number;
   lightness?: number;
+  randomness?: number;
 }
 
 export default class Grid {
@@ -33,6 +34,7 @@ export default class Grid {
   hue?: number;
   saturation?: number;
   lightness?: number;
+  randomness?: number;
 
   canvas: any;
   context: any;
@@ -45,6 +47,8 @@ export default class Grid {
 
     this.width = this.cellWidth*this.gridSize;
     this.height = this.cellHeight*this.gridSize;
+
+    this.randomness = (config.randomness/100) || 0.75;
 
     this.createGrid();
 
@@ -64,7 +68,7 @@ export default class Grid {
   }
   private repeat = (fn: any) => Array(this.gridSize).fill(0).map(fn);
 
-  private rand = () => Math.random() < 0.75 ? 0 : 1;
+  private rand = () => Math.random() < this.randomness ? 0 : 1;
 
   public createGrid = () => {
     this.grid = this.repeat(() => this.repeat(this.rand));
