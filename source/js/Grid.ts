@@ -35,6 +35,8 @@ export default class Grid {
   saturation?: number;
   lightness?: number;
   randomness?: number;
+  img?: any;
+  emoji: boolean;
 
   canvas: any;
   context: any;
@@ -65,6 +67,7 @@ export default class Grid {
     this.hue = config.hue || null;
     this.saturation = config.saturation || null;
     this.lightness = config.lightness || null;
+    this.emoji = config.emoji || false;
   }
   private repeat = (fn: any) => Array(this.gridSize).fill(0).map(fn);
 
@@ -91,9 +94,12 @@ export default class Grid {
           let check = this.grid[y][x];
           if(xCell != check){ 
             if(xCell){
-              this.context.fillStyle = this.randHsl();
-              this.context.fillRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
-             
+              if(!this.emoji) {
+                this.context.fillStyle = this.randHsl();
+                this.context.fillRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
+              } else { 
+                this.context.drawImage(this.img,(x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
+              }
             } else {
               this.context.clearRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
             }
@@ -108,8 +114,7 @@ export default class Grid {
     this.context.strokeStyle = "black";
 
 
-//    this.img=document.getElementById("emoji");
-//    ctx.drawImage(img,10,10,150,180);
+    this.img=document.getElementById("emoji");
 
     this.context.font=this.cellWidth+"px";
     // Loop Through Grid

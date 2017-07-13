@@ -2,11 +2,12 @@ import Grid from "./Grid";
 
 let GameOfLifeGrid = new Grid({
   id: "canvas",
-  gridSize: 140,
-  cellWidth: 10,
-  cellHeight: 10,
+  gridSize: 40,
+  cellWidth: 50,
+  cellHeight: 50,
   lightness: 50,
-  randomness: 70 
+  randomness: 70, 
+  emoji: true
 });
 GameOfLifeGrid.run(true);
 let stopButton = document.querySelector('.stopBtn');
