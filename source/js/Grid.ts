@@ -58,6 +58,7 @@ export default class Grid {
           if(xCell != check){ 
             if(xCell){
               this.context.fillRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
+             
             } else {
               this.context.clearRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
             }
@@ -72,6 +73,11 @@ export default class Grid {
     this.context.strokeStyle = "black";
     this.context.fillStyle = "black";
 
+
+//    this.img=document.getElementById("emoji");
+//    ctx.drawImage(img,10,10,150,180);
+
+    this.context.font=this.cellWidth+"px";
     // Loop Through Grid
     this.drawRect()
 
