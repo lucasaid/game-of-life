@@ -9,27 +9,17 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
          filename: 'main.bundle.js'
      },
      resolve: {
-       extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+        extensions: ['.scss', '.ts', '.js']
      },
      module: {
          loaders: [
+             { test: /\.ts?$/, loader: "ts-loader" },
              {
-                 test: /\.js$/,
-                 loader: 'babel-loader',
-                 query: {
-                     presets: ['es2015']
-                 }
+               test: /\.scss$/,
+               loader: 'sass-loader'
              },
-             {
-                 test: /\.scss$/,
-                 loader: ExtractTextPlugin.extract(['css','sass','style'])
-             },
-             { test: /\.tsx?$/, loader: "ts-loader" }
          ]
      },
-     plugins: [
-         new ExtractTextPlugin('public/style.css')
-     ],
      stats: {
          colors: true
      },
