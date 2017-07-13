@@ -6,6 +6,8 @@
 // Any live cell with more than three live neighbours dies, as if by overpopulation.
 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
+import {cloneDeep} from "lodash"; 
+
 export default class Grid {
   // Declare types
   grid: any; 
@@ -16,6 +18,8 @@ export default class Grid {
   height: number;
   tempGrid: Array<Array<number>>;
   random: boolean;
+  firstRun: boolean;
+  loopRun: number;
 
   canvas: any;
   context: any;
@@ -30,7 +34,6 @@ export default class Grid {
 
     this.createGrid();
 
-    this.tempGrid = this.grid.slice();
 
     this.canvas = document.getElementById(id);
     this.canvas.width = this.width;
@@ -38,43 +41,45 @@ export default class Grid {
 
     this.context = this.canvas.getContext("2d");
     this.random = false;
+    this.firstRun = true;
+    this.loopRun = 0;
   }
   private repeat = (fn: any) => Array(this.gridSize).fill(0).map(fn);
 
   private rand = () => Math.random() < 0.75 ? 0 : 1;
 
-  public createGrid = () => this.grid = this.repeat(() => this.repeat(this.rand));
+  public createGrid = () => {
+    this.grid = this.repeat(() => this.repeat(this.rand));
+    this.tempGrid = cloneDeep(this.grid);
+  }
+
   private drawRect = () => {
-    this.grid.forEach((yCell: Array<Array<number>>, y: number) => {
-      this.context.moveTo(0, y*this.cellHeight);
-      this.context.lineTo(this.width, y*this.cellHeight);
-      yCell.forEach((xCell: Array<number>, x: number) => {
-        this.context.moveTo(x*this.cellWidth, 0);
-        this.context.lineTo(x*this.cellWidth, this.height);
-        if(xCell){
-          this.context.fillRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
-        }
+    this.tempGrid.forEach((yCell: any, y: number) => {
+
+      yCell.forEach((xCell: number, x: number) => {
+
+          let check = this.grid[y][x];
+          if(xCell != check || this.firstRun){ 
+            if(xCell){
+              this.context.fillRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
+            } else {
+              this.context.clearRect((x*this.cellWidth),(y*this.cellHeight),this.cellWidth,this.cellHeight);
+            }
+          }
+
       });
     });
+    this.firstRun = false;
+    this.grid = cloneDeep(this.tempGrid);
   }
   public drawBoard = () => {
 
-    this.context.clearRect(0, 0, this.width, this.height);
     this.context.strokeStyle = "black";
     this.context.fillStyle = "black";
 
     // Loop Through Grid
     this.drawRect()
 
-    // Draw Bottom Line
-    this.context.moveTo(0, this.height);
-    this.context.lineTo(this.width, this.height);
-
-    // Draw Right Line
-    this.context.moveTo(this.width, 0);
-    this.context.lineTo(this.width, this.height);
-
-    // Draw all the lines
     this.context.stroke();
   }
 
@@ -84,7 +89,6 @@ export default class Grid {
         this.checkNeighbours(x, y)
       });
     });
-    this.grid = this.tempGrid.slice();
   }
 
   private checkNeighbours = (x: number, y: number) => {
@@ -141,12 +145,10 @@ export default class Grid {
     window.requestAnimationFrame(this.loop);
   }
   private loop = () => {
-    
-    this.drawBoard();
-    this.checkCells();
     if(this.random)
       this.addRandom();
-
+    this.checkCells();
+    this.drawBoard();
     setTimeout(this.requestFrame,50);
   }
   public run = (random?: boolean) => {
